@@ -59,46 +59,51 @@ interface IGoodKernel is IKernel {
   /// @param removeGoodServiceVoucherInput The input struct for the removal of the GoodServiceVoucher
   function removeGoodServiceVoucher(RemoveGoodServiceVoucherInput calldata removeGoodServiceVoucherInput) external;
 
-  function getGoods(GetGoodsInput input)
+  /// @notice Get all goods of a specific owner
+  /// @param input The input struct for the get of the Good[]
+  /// @return output The array of all goods of the owner with their ids, states and acceptedTokens
+  function getGoods(GetGoodsInput calldata input) external view returns (GetGoodsOutput memory output);
+
+  /// @notice Get a good of a specific owner
+  /// @param input The input struct for the get of the Good
+  /// @return output The good of the owner with its state and acceptedTokens
+  function getGood(GetGoodInput calldata input) external view returns (GetGoodOutput memory output);
+
+  /// @notice Get all services of a specific good
+  /// @param input The input struct for the get of the GoodService[]
+  /// @return output The good informations with its state, acceptedTokens and the array of all services of the good with their ids, capacities and states
+  function getGoodServices(GetGoodServicesInput calldata input)
     external
     view
-    returns (
-      GetGoodsOutput output
-    );
+    returns (GetGoodServicesOutput memory output);
 
-  function getGood(GetGoodInput input)
+  /// @notice Get a service of a specific good
+  /// @param input The input struct for the get of the GoodService
+  /// @return output The good informations with its state, acceptedTokens and the service of the good with its capacity and state
+  function getGoodService(GetGoodServiceInput calldata input)
     external
     view
-    returns (GetGoodOutput output);
+    returns (GetGoodServiceOutput memory output);
 
-  function getGoodServices(GetGoodServicesInput input)
+  /// @notice Get all vouchers of a specific good service
+  /// @param input The input struct for the get of the GoodServiceVoucher[]
+  /// @return output The good informations with its state, acceptedTokens, the good service informations with its capacity, state and the array of all vouchers of the good service with their ids, starts, ends, amounts, states and destructionTypes
+  function getGoodServiceVouchers(GetGoodServiceVouchersInput calldata input)
     external
     view
-    returns (
-      GetGoodServicesOutput memory output
-    );
+    returns (GetGoodServiceVouchersOutput memory output);
 
-  function getGoodService(
-    GetGoodServiceInput input
-  ) external view returns (GetGoodServiceOutput memory output);
-
-  function getGoodServiceVouchers(
-    GetGoodServiceVouchersInput getGoodServiceVouchersInput
-  )
-    external
-    view
-    returns (
-      GetGoodServiceVouchersOutput memory getGoodServiceVouchersOutput
-    );
-
+  /// @notice Get a specific range of vouchers of a specific good service
+  /// @param input The input struct for the get of the GoodServiceVoucher
+  /// @return output The good informations with its state, acceptedTokens, the good service informations with its capacity, state and the array of all vouchers of the good service with their ids, starts, ends, amounts, states and destructionTypes
   function getGoodServiceVouchers(GetArrayGoodServiceVouchersInput calldata input)
     external
     view
-    returns (
-      GetArrayGoodServiceVouchersOutput memory output
-    );
+    returns (GetArrayGoodServiceVouchersOutput memory output);
 
+  /// @notice Pauses the current contract
   function pause() external;
 
+  /// @notice Unpauses the current contract
   function unpause() external;
 }

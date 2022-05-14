@@ -94,6 +94,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     _;
   }
 
+  /// @inheritdoc IGoodKernel
   function createGood(CreateGoodInput calldata createGoodInput)
     external
     virtual
@@ -112,6 +113,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     emit GoodCreated(createGoodInput.from, mintedGoodId, mintedGoodState, createGoodInput.tokenUri);
   }
 
+  /// @inheritdoc IGoodKernel
   function removeGood(RemoveGoodInput calldata removeGoodInput) external virtual override {
     Good storage good = _goods[removeGoodInput.from][removeGoodInput.goodId];
 
@@ -131,6 +133,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     emit GoodBurned(removeGoodInput.from, removeGoodInput.goodId);
   }
 
+  /// @inheritdoc IGoodKernel
   function pauseGood(address from, uint256 goodId) external virtual override whenNotPaused {
     Good storage good = _goods[from][_goodsIds[from][goodId]];
 
@@ -142,6 +145,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     emit GoodPaused(from, goodId);
   }
 
+  /// @inheritdoc IGoodKernel
   function unpauseGood(address from, uint256 goodId) external virtual override whenNotPaused {
     Good storage good = _goods[from][_goodsIds[from][goodId]];
 
@@ -153,6 +157,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     emit GoodUnpaused(from, goodId);
   }
 
+  /// @inheritdoc IGoodKernel
   function createGoodService(CreateGoodServiceInput calldata createGoodServiceInput)
     external
     virtual
@@ -178,6 +183,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     );
   }
 
+  /// @inheritdoc IGoodKernel
   function removeGoodService(RemoveGoodServiceInput calldata removeGoodServiceInput)
     external
     virtual
@@ -201,6 +207,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     emit GoodServiceBurned(removeGoodServiceInput.from, good.id, goodService.id);
   }
 
+  /// @inheritdoc IGoodKernel
   function pauseGoodService(PauseGoodServiceInput calldata pauseGoodServiceInput)
     external
     virtual
@@ -227,6 +234,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     emit GoodServicePaused(pauseGoodServiceInput.from, good.id, goodService.id);
   }
 
+  /// @inheritdoc IGoodKernel
   function unpauseGoodService(UnPauseGoodServiceInput calldata unpauseGoodServiceInput)
     external
     virtual
@@ -253,6 +261,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     emit GoodServiceUnpaused(unpauseGoodServiceInput.from, good.id, goodService.id);
   }
 
+  /// @inheritdoc IGoodKernel
   function createGoodServiceVoucher(CreateGoodServiceVoucherInput calldata createGoodServiceVoucherInput)
     external
     virtual
@@ -282,6 +291,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     // emit GoodServiceVoucherCreated(createGoodServiceVoucherInput.from, createGoodServiceVoucherInput.goodId, createGoodServiceVoucherInput.goodServiceId, goodServiceVoucherId, goodServiceVoucherStart, goodServiceVoucherEnd, goodServiceVoucherAmount, goodServiceVoucherState, goodServiceVoucherDestructionType, goodServiceVoucherUri);
   }
 
+  /// @inheritdoc IGoodKernel
   function removeGoodServiceVoucher(RemoveGoodServiceVoucherInput calldata removeGoodServiceVoucherInput)
     external
     virtual
@@ -319,7 +329,14 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     );
   }
 
-  function getGoods(GetGoodsInput input) external view virtual override returns (GetGoodsOutput output) {
+  /// @inheritdoc IGoodKernel
+  function getGoods(GetGoodsInput calldata input)
+    external
+    view
+    virtual
+    override
+    returns (GetGoodsOutput memory output)
+  {
     uint256 goodsCount = _goodsCount[input.goodsOwner];
 
     require(goodsCount != 0, "GK014");
@@ -334,7 +351,8 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     }
   }
 
-  function getGood(GetGoodInput input) external view virtual override returns (GetGoodOutput output) {
+  /// @inheritdoc IGoodKernel
+  function getGood(GetGoodInput calldata input) external view virtual override returns (GetGoodOutput memory output) {
     Good storage good = _goods[input.goodOwner][_goodsIds[input.goodOwner][input.goodId]];
 
     // Call on a non existing or non owned good
@@ -344,7 +362,8 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     output.acceptedTokens = good.acceptedTokens;
   }
 
-  function getGoodServices(GetGoodServicesInput input)
+  /// @inheritdoc IGoodKernel
+  function getGoodServices(GetGoodServicesInput calldata input)
     external
     view
     virtual
@@ -371,7 +390,8 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     }
   }
 
-  function getGoodService(GetGoodServiceInput input)
+  /// @inheritdoc IGoodKernel
+  function getGoodService(GetGoodServiceInput calldata input)
     external
     view
     virtual
@@ -395,7 +415,8 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     output.state = goodService.state;
   }
 
-  function getGoodServiceVouchers(GetGoodServiceVouchersInput input)
+  /// @inheritdoc IGoodKernel
+  function getGoodServiceVouchers(GetGoodServiceVouchersInput calldata input)
     external
     view
     virtual
@@ -433,6 +454,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     }
   }
 
+  /// @inheritdoc IGoodKernel
   function getGoodServiceVouchers(GetArrayGoodServiceVouchersInput calldata input)
     external
     view
@@ -471,6 +493,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     }
   }
 
+  /// @inheritdoc IGoodKernel
   function pause() public virtual override onlyFromRouterOrOwner {
     _pause();
   }
@@ -478,13 +501,28 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
   function _pause() internal override {
     IGoodTokenFactory goodTokenFactory = IGoodTokenFactory(_goodTokenFactory);
 
+    IGoodServiceTokenFactory goodServiceTokenFactory = IGoodServiceTokenFactory(_goodServiceTokenFactory);
+
+    IGoodServiceVoucherTokenFactory goodServiceVoucherTokenFactory = IGoodServiceVoucherTokenFactory(
+      _goodServiceVoucherTokenFactory
+    );
+
     if (!goodTokenFactory.paused()) {
       IGoodTokenFactory(_goodTokenFactory).pause();
+    }
+
+    if (!goodServiceTokenFactory.paused()) {
+      IGoodServiceTokenFactory(_goodServiceTokenFactory).pause();
+    }
+
+    if (!goodServiceVoucherTokenFactory.paused()) {
+      IGoodServiceVoucherTokenFactory(_goodServiceVoucherTokenFactory).pause();
     }
 
     super._pause();
   }
 
+  /// @inheritdoc IGoodKernel
   function unpause() public virtual override onlyFromRouterOrOwner {
     _unpause();
   }
@@ -492,8 +530,22 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
   function _unpause() internal override {
     IGoodTokenFactory goodTokenFactory = IGoodTokenFactory(_goodTokenFactory);
 
+    IGoodServiceTokenFactory goodServiceTokenFactory = IGoodServiceTokenFactory(_goodServiceTokenFactory);
+
+    IGoodServiceVoucherTokenFactory goodServiceVoucherTokenFactory = IGoodServiceVoucherTokenFactory(
+      _goodServiceVoucherTokenFactory
+    );
+
     if (goodTokenFactory.paused()) {
       IGoodTokenFactory(_goodTokenFactory).unpause();
+    }
+
+    if (goodServiceTokenFactory.paused()) {
+      IGoodServiceTokenFactory(_goodServiceTokenFactory).unpause();
+    }
+
+    if (goodServiceVoucherTokenFactory.paused()) {
+      IGoodServiceVoucherTokenFactory(_goodServiceVoucherTokenFactory).unpause();
     }
 
     super._unpause();
