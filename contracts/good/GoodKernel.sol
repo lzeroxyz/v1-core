@@ -2,23 +2,23 @@
 
 pragma solidity >=0.4.22 <0.9.0;
 
-import '@openzeppelin/contracts/utils/Context.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/security/Pausable.sol';
+import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
-import '../libraries/good/GoodHelper.sol';
-import '../libraries/good/GoodServiceHelper.sol';
-import '../utils/TokenFactoryUtils.sol';
-import '../utils/Routable.sol';
+import "../libraries/good/GoodHelper.sol";
+import "../libraries/good/GoodServiceHelper.sol";
+import "../utils/TokenFactoryUtils.sol";
+import "../utils/Routable.sol";
 
-import '../interfaces/good/IGoodKernel.sol';
-import '../interfaces/good/IGoodTokenFactory.sol';
-import '../interfaces/good/IGoodServiceTokenFactory.sol';
-import '../interfaces/good/IGoodServiceVoucherTokenFactory.sol';
+import "../interfaces/good/IGoodKernel.sol";
+import "../interfaces/good/IGoodTokenFactory.sol";
+import "../interfaces/good/IGoodServiceTokenFactory.sol";
+import "../interfaces/good/IGoodServiceVoucherTokenFactory.sol";
 
-import '../structs/Good.sol';
-import '../structs/inputs/Good.sol';
-import '../structs/outputs/Good.sol';
+import "../structs/Good.sol";
+import "../structs/inputs/Good.sol";
+import "../structs/outputs/Good.sol";
 
 contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
   using TokenFactoryUtils for address;
@@ -38,12 +38,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
   /// @dev address:goodsCount
   mapping(address => uint256) private _goodsCount;
 
-  event GoodCreated(
-    address from,
-    uint256 goodId,
-    GoodState goodState,
-    string goodUri
-  );
+  event GoodCreated(address from, uint256 goodId, GoodState goodState, string goodUri);
   event GoodBurned(address from, uint256 goodId);
   event GoodPaused(address from, uint256 goodId);
   event GoodUnpaused(address from, uint256 goodId);
@@ -57,11 +52,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
   );
   event GoodServiceBurned(address from, uint256 goodId, uint256 goodServiceId);
   event GoodServicePaused(address from, uint256 goodId, uint256 goodServiceId);
-  event GoodServiceUnpaused(
-    address from,
-    uint256 goodId,
-    uint256 goodServiceId
-  );
+  event GoodServiceUnpaused(address from, uint256 goodId, uint256 goodServiceId);
 
   event GoodServiceVoucherCreated(
     address from,
@@ -75,12 +66,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     GoodServiceVoucherDestructionType goodServiceVoucherDestructionType,
     uint256 goodServiceVoucherUri
   );
-  event GoodServiceVoucherBurned(
-    address from,
-    uint256 goodId,
-    uint256 goodServiceId,
-    uint256 goodServiceVoucherId
-  );
+  event GoodServiceVoucherBurned(address from, uint256 goodId, uint256 goodServiceId, uint256 goodServiceVoucherId);
   event GoodServiceVoucherPaused();
 
   constructor(
@@ -90,11 +76,11 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     address goodServiceVoucherTokenFactory
   ) Routable(routerAddress) {
     // Good Token factory address is not valid
-    require(goodTokenFactory.isValidTokenFactory(), 'GK001');
+    require(goodTokenFactory.isValidTokenFactory(), "GK001");
     // Good Service Token factory address is not valid
-    require(goodServiceTokenFactory.isValidTokenFactory(), 'GK002');
+    require(goodServiceTokenFactory.isValidTokenFactory(), "GK002");
     // Good Service Voucher token factory is not valid
-    require(goodServiceVoucherTokenFactory.isValidTokenFactory(), 'GK003');
+    require(goodServiceVoucherTokenFactory.isValidTokenFactory(), "GK003");
 
     _goodTokenFactory = goodTokenFactory;
 
@@ -104,7 +90,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
   }
 
   modifier onlyFromRouterOrOwner() {
-    require(_msgSender() == owner() || _msgSender() == router(), 'GK1');
+    require(_msgSender() == owner() || _msgSender() == router(), "GK1");
     _;
   }
 
@@ -123,23 +109,14 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
       _goodTokenFactory
     );
 
-    emit GoodCreated(
-      createGoodInput.from,
-      mintedGoodId,
-      mintedGoodState,
-      createGoodInput.tokenUri
-    );
+    emit GoodCreated(createGoodInput.from, mintedGoodId, mintedGoodState, createGoodInput.tokenUri);
   }
 
-  function removeGood(RemoveGoodInput calldata removeGoodInput)
-    external
-    virtual
-    override
-  {
+  function removeGood(RemoveGoodInput calldata removeGoodInput) external virtual override {
     Good storage good = _goods[removeGoodInput.from][removeGoodInput.goodId];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
     GoodHelper.remove(
       _goods[removeGoodInput.from],
@@ -154,61 +131,43 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     emit GoodBurned(removeGoodInput.from, removeGoodInput.goodId);
   }
 
-  function pauseGood(address from, uint256 goodId)
-    external
-    virtual
-    override
-    whenNotPaused
-  {
+  function pauseGood(address from, uint256 goodId) external virtual override whenNotPaused {
     Good storage good = _goods[from][_goodsIds[from][goodId]];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
     good.pause();
 
     emit GoodPaused(from, goodId);
   }
 
-  function unpauseGood(address from, uint256 goodId)
-    external
-    virtual
-    override
-    whenNotPaused
-  {
+  function unpauseGood(address from, uint256 goodId) external virtual override whenNotPaused {
     Good storage good = _goods[from][_goodsIds[from][goodId]];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
     good.unpause();
 
     emit GoodUnpaused(from, goodId);
   }
 
-  function createGoodService(
-    CreateGoodServiceInput calldata createGoodServiceInput
-  )
+  function createGoodService(CreateGoodServiceInput calldata createGoodServiceInput)
     external
     virtual
     override
     whenNotPaused
-    returns (
-      uint256 mintedGoodServiceId,
-      GoodServiceState mintedGoodServiceState
-    )
+    returns (uint256 mintedGoodServiceId, GoodServiceState mintedGoodServiceState)
   {
     Good storage good = _goods[createGoodServiceInput.from][
       _goodsIds[createGoodServiceInput.from][createGoodServiceInput.goodId]
     ];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
-    (mintedGoodServiceId, mintedGoodServiceState) = good.addService(
-      createGoodServiceInput,
-      _goodServiceTokenFactory
-    );
+    (mintedGoodServiceId, mintedGoodServiceState) = good.addService(createGoodServiceInput, _goodServiceTokenFactory);
 
     emit GoodServiceCreated(
       createGoodServiceInput.from,
@@ -219,159 +178,138 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     );
   }
 
-  function removeGoodService(
-    RemoveGoodServiceInput calldata removeGoodServiceInput
-  ) external virtual override whenNotPaused {
+  function removeGoodService(RemoveGoodServiceInput calldata removeGoodServiceInput)
+    external
+    virtual
+    override
+    whenNotPaused
+  {
     Good storage good = _goods[removeGoodServiceInput.from][
       _goodsIds[removeGoodServiceInput.from][removeGoodServiceInput.goodId]
     ];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
-    GoodService storage goodService = good.services[
-      good.servicesIds[removeGoodServiceInput.goodServiceId]
-    ];
+    GoodService storage goodService = good.services[good.servicesIds[removeGoodServiceInput.goodServiceId]];
 
     // Call on a non existing good service
-    require(goodService.id != 0, 'GK012');
+    require(goodService.id != 0, "GK012");
 
-    good.removeService(
-      goodService,
-      removeGoodServiceInput.from,
-      _goodServiceTokenFactory
-    );
+    good.removeService(goodService, removeGoodServiceInput.from, _goodServiceTokenFactory);
 
-    emit GoodServiceBurned(
-      removeGoodServiceInput.from,
-      good.id,
-      goodService.id
-    );
+    emit GoodServiceBurned(removeGoodServiceInput.from, good.id, goodService.id);
   }
 
-  function pauseGoodService(
-    PauseGoodServiceInput calldata pauseGoodServiceInput
-  ) external virtual override whenNotPaused {
+  function pauseGoodService(PauseGoodServiceInput calldata pauseGoodServiceInput)
+    external
+    virtual
+    override
+    whenNotPaused
+  {
     Good storage good = _goods[pauseGoodServiceInput.from][
       _goodsIds[pauseGoodServiceInput.from][pauseGoodServiceInput.goodId]
     ];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
-    GoodService storage goodService = good.services[
-      good.servicesIds[pauseGoodServiceInput.goodServiceId]
-    ];
+    GoodService storage goodService = good.services[good.servicesIds[pauseGoodServiceInput.goodServiceId]];
 
     // Call on a non existing good service
-    require(goodService.id != 0, 'GK012');
+    require(goodService.id != 0, "GK012");
 
     // The good service is already paused
-    require(goodService.state == GoodServiceState.Unpaused, 'GK023');
+    require(goodService.state == GoodServiceState.Unpaused, "GK023");
 
     goodService.state = GoodServiceState.Paused;
 
     emit GoodServicePaused(pauseGoodServiceInput.from, good.id, goodService.id);
   }
 
-  function unpauseGoodService(
-    UnPauseGoodServiceInput calldata unpauseGoodServiceInput
-  ) external virtual override whenNotPaused {
+  function unpauseGoodService(UnPauseGoodServiceInput calldata unpauseGoodServiceInput)
+    external
+    virtual
+    override
+    whenNotPaused
+  {
     Good storage good = _goods[unpauseGoodServiceInput.from][
       _goodsIds[unpauseGoodServiceInput.from][unpauseGoodServiceInput.goodId]
     ];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
-    GoodService storage goodService = good.services[
-      good.servicesIds[unpauseGoodServiceInput.goodServiceId]
-    ];
+    GoodService storage goodService = good.services[good.servicesIds[unpauseGoodServiceInput.goodServiceId]];
 
     // Call on a non existing good service
-    require(goodService.id != 0, 'GK012');
+    require(goodService.id != 0, "GK012");
 
     // The good service is already unpaused
-    require(goodService.state == GoodServiceState.Paused, 'GK024');
+    require(goodService.state == GoodServiceState.Paused, "GK024");
 
     goodService.state = GoodServiceState.Unpaused;
 
-    emit GoodServiceUnpaused(
-      unpauseGoodServiceInput.from,
-      good.id,
-      goodService.id
-    );
+    emit GoodServiceUnpaused(unpauseGoodServiceInput.from, good.id, goodService.id);
   }
 
-  function createGoodServiceVoucher(
-    CreateGoodServiceVoucherInput calldata createGoodServiceVoucherInput
-  ) external virtual override returns (uint256 mintedGoodServiceVoucher) {
+  function createGoodServiceVoucher(CreateGoodServiceVoucherInput calldata createGoodServiceVoucherInput)
+    external
+    virtual
+    override
+    returns (uint256 mintedGoodServiceVoucher)
+  {
     Good storage good = _goods[createGoodServiceVoucherInput.from][
-      _goodsIds[createGoodServiceVoucherInput.from][
-        createGoodServiceVoucherInput.goodId
-      ]
+      _goodsIds[createGoodServiceVoucherInput.from][createGoodServiceVoucherInput.goodId]
     ];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
     // Unable to burn a voucher on a paused good
-    require(good.state == GoodState.Unpaused, 'GK021');
+    require(good.state == GoodState.Unpaused, "GK021");
 
-    GoodService storage goodService = good.services[
-      good.servicesIds[createGoodServiceVoucherInput.goodServiceId]
-    ];
+    GoodService storage goodService = good.services[good.servicesIds[createGoodServiceVoucherInput.goodServiceId]];
 
     // Call on a non existing good service
-    require(goodService.id != 0, 'GK012');
+    require(goodService.id != 0, "GK012");
 
     // The good service is already paused
-    require(goodService.state == GoodServiceState.Unpaused, 'GK023');
+    require(goodService.state == GoodServiceState.Unpaused, "GK023");
 
-    mintedGoodServiceVoucher = goodService.addVoucher(
-      createGoodServiceVoucherInput,
-      _goodServiceVoucherTokenFactory
-    );
+    mintedGoodServiceVoucher = goodService.addVoucher(createGoodServiceVoucherInput, _goodServiceVoucherTokenFactory);
 
     // emit GoodServiceVoucherCreated(createGoodServiceVoucherInput.from, createGoodServiceVoucherInput.goodId, createGoodServiceVoucherInput.goodServiceId, goodServiceVoucherId, goodServiceVoucherStart, goodServiceVoucherEnd, goodServiceVoucherAmount, goodServiceVoucherState, goodServiceVoucherDestructionType, goodServiceVoucherUri);
   }
 
-  function removeGoodServiceVoucher(
-    RemoveGoodServiceVoucherInput calldata removeGoodServiceVoucherInput
-  ) external virtual override {
-    Good storage good = _goods[removeGoodServiceVoucherInput.from][
-      removeGoodServiceVoucherInput.goodId
-    ];
+  function removeGoodServiceVoucher(RemoveGoodServiceVoucherInput calldata removeGoodServiceVoucherInput)
+    external
+    virtual
+    override
+  {
+    Good storage good = _goods[removeGoodServiceVoucherInput.from][removeGoodServiceVoucherInput.goodId];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
     // Unable to burn a voucher on a paused good
-    require(good.state != GoodState.Unpaused, 'GK021');
+    require(good.state != GoodState.Unpaused, "GK021");
 
-    GoodService storage goodService = good.services[
-      good.servicesIds[removeGoodServiceVoucherInput.goodServiceId]
-    ];
+    GoodService storage goodService = good.services[good.servicesIds[removeGoodServiceVoucherInput.goodServiceId]];
 
     // Call on a non existing good service
-    require(goodService.id != 0, 'GK012');
+    require(goodService.id != 0, "GK012");
 
-    require(goodService.state == GoodServiceState.Unpaused, 'GK023');
+    require(goodService.state == GoodServiceState.Unpaused, "GK023");
 
     GoodServiceVoucher storage goodVoucher = goodService.vouchers[
-      goodService.vouchersIds[
-        removeGoodServiceVoucherInput.goodServiceVoucherId
-      ]
+      goodService.vouchersIds[removeGoodServiceVoucherInput.goodServiceVoucherId]
     ];
 
     // Call on a non existing good service voucher
-    require(goodVoucher.id != 0, 'GK013');
+    require(goodVoucher.id != 0, "GK013");
 
-    goodService.removeVoucher(
-      goodVoucher,
-      removeGoodServiceVoucherInput.from,
-      _goodServiceVoucherTokenFactory
-    );
+    goodService.removeVoucher(goodVoucher, removeGoodServiceVoucherInput.from, _goodServiceVoucherTokenFactory);
 
     emit GoodServiceVoucherBurned(
       removeGoodServiceVoucherInput.from,
@@ -381,21 +319,13 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     );
   }
 
-  function getGoods(GetGoodsInput input)
-    external
-    view
-    virtual
-    override
-    returns (GetGoodsOutput output)
-  {
+  function getGoods(GetGoodsInput input) external view virtual override returns (GetGoodsOutput output) {
     uint256 goodsCount = _goodsCount[input.goodsOwner];
 
-    require(goodsCount != 0, 'GK014');
+    require(goodsCount != 0, "GK014");
 
     for (uint256 i = 0; i < goodsCount - 1; i++) {
-      Good storage good = _goods[input.goodsOwner][
-        _goodsIds[input.goodsOwner][i]
-      ];
+      Good storage good = _goods[input.goodsOwner][_goodsIds[input.goodsOwner][i]];
 
       if (good.id == 0) continue;
       output.ids[i] = good.id;
@@ -404,21 +334,13 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     }
   }
 
-  function getGood(GetGoodInput input)
-    external
-    view
-    virtual
-    override
-    returns (GetGoodOutput output)
-  {
-    Good storage good = _goods[input.goodOwner][
-      _goodsIds[input.goodOwner][input.goodId]
-    ];
+  function getGood(GetGoodInput input) external view virtual override returns (GetGoodOutput output) {
+    Good storage good = _goods[input.goodOwner][_goodsIds[input.goodOwner][input.goodId]];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
-    outpu.state = good.state;
+    output.state = good.state;
     output.acceptedTokens = good.acceptedTokens;
   }
 
@@ -429,12 +351,10 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     override
     returns (GetGoodServicesOutput memory output)
   {
-    Good storage good = _goods[goodOwner][
-      _goodsIds[input.goodOwner][input.goodId]
-    ];
+    Good storage good = _goods[input.goodOwner][_goodsIds[input.goodOwner][input.goodId]];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
     output.goodState = good.state;
     output.goodAcceptedTokens = good.acceptedTokens;
@@ -458,30 +378,24 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     override
     returns (GetGoodServiceOutput memory output)
   {
-    Good storage good = _goods[goodOwner][
-      _goodsIds[input.goodOwner][input.goodId]
-    ];
+    Good storage good = _goods[input.goodOwner][_goodsIds[input.goodOwner][input.goodId]];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
     output.goodState = good.state;
     output.goodAcceptedTokens = good.acceptedTokens;
 
-    GoodService storage goodService = good.services[
-      good.servicesIds[input.goodServiceId]
-    ];
+    GoodService storage goodService = good.services[good.servicesIds[input.goodServiceId]];
 
     // Call on a non existing or non owned good service
-    require(goodService.id != 0, 'GK012');
+    require(goodService.id != 0, "GK012");
 
     output.capacity = goodService.capacity;
     output.state = goodService.state;
   }
 
-  function getGoodServiceVouchers(
-    GetGoodServiceVouchersInput getGoodServiceVouchersInput
-  )
+  function getGoodServiceVouchers(GetGoodServiceVouchersInput getGoodServiceVouchersInput)
     external
     view
     virtual
@@ -491,81 +405,62 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     Good storage good = _goods[goodOwner][_goodsIds[goodOwner][goodId]];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
     output.goodState = good.state;
     output.goodAcceptedTokens = good.acceptedTokens;
 
-    GoodService storage goodService = good.services[
-      good.servicesIds[goodServiceId]
-    ];
+    GoodService storage goodService = good.services[good.servicesIds[goodServiceId]];
 
     // Call on a non existing or non owned good service
-    require(goodService.id != 0, 'GK012');
+    require(goodService.id != 0, "GK012");
 
     output.goodServiceCapacity = goodService.capacity;
     output.goodServiceState = goodService.state;
 
-    mapping(uint256 => GoodServiceVoucher) storage goodVouchers = goodService
-      .vouchers;
+    mapping(uint256 => GoodServiceVoucher) storage goodVouchers = goodService.vouchers;
 
     uint256 goodVouchersCount = goodService.vouchersCount;
 
     for (uint256 i = 0; i < goodVouchersCount - 1; i++) {
       if (goodVouchers[i].id == 0) continue;
-      getGoodServiceVouchersOutput.goodServiceVoucherIds[i] = goodVouchers[i]
-        .id;
-      getGoodServiceVouchersOutput.goodServiceVoucherStarts[i] = goodVouchers[i]
-        .start;
-      getGoodServiceVouchersOutput.goodServiceVoucherEnds[i] = goodVouchers[i]
-        .end;
-      getGoodServiceVouchersOutput.goodServiceVoucherAmounts[i] = goodVouchers[
-        i
-      ].amount;
-      getGoodServiceVouchersOutput.goodServiceVoucherStates[i] = goodVouchers[i]
-        .state;
-      getGoodServiceVouchersOutput.goodServiceVoucherDestructionTypes[
-          i
-        ] = goodVouchers[i].destructionType;
+      getGoodServiceVouchersOutput.goodServiceVoucherIds[i] = goodVouchers[i].id;
+      getGoodServiceVouchersOutput.goodServiceVoucherStarts[i] = goodVouchers[i].start;
+      getGoodServiceVouchersOutput.goodServiceVoucherEnds[i] = goodVouchers[i].end;
+      getGoodServiceVouchersOutput.goodServiceVoucherAmounts[i] = goodVouchers[i].amount;
+      getGoodServiceVouchersOutput.goodServiceVoucherStates[i] = goodVouchers[i].state;
+      getGoodServiceVouchersOutput.goodServiceVoucherDestructionTypes[i] = goodVouchers[i].destructionType;
     }
   }
 
-  function getGoodServiceVouchers(
-    GetArrayGoodServiceVouchersInput calldata input
-  )
+  function getGoodServiceVouchers(GetArrayGoodServiceVouchersInput calldata input)
     external
     view
     virtual
     override
     returns (GetArrayGoodServiceVouchersOutput memory output)
   {
-    Good storage good = _goods[input.goodOwner][
-      _goodsIds[input.goodOwner][input.goodId]
-    ];
+    Good storage good = _goods[input.goodOwner][_goodsIds[input.goodOwner][input.goodId]];
 
     // Call on a non existing or non owned good
-    require(good.id != 0, 'GK011');
+    require(good.id != 0, "GK011");
 
-    GoodService storage goodService = good.services[
-      good.servicesIds[input.goodServiceId]
-    ];
+    GoodService storage goodService = good.services[good.servicesIds[input.goodServiceId]];
 
     output.goodState = good.state;
     output.goodAcceptedTokens = good.acceptedTokens;
 
     // Call on a non existing good service
-    require(goodService.id != 0, 'GK012');
+    require(goodService.id != 0, "GK012");
 
     output.goodServiceCapacity = goodService.capacity;
     output.goodServiceState = goodService.state;
 
     for (uint256 i = 0; i < goodService.vouchersCount - 1; i++) {
-      GoodServiceVoucher storage goodServiceVoucher = goodService.vouchers[
-        goodService.vouchersIds[i]
-      ];
+      GoodServiceVoucher storage goodServiceVoucher = goodService.vouchers[goodService.vouchersIds[i]];
 
       // Call on a non existing good service voucher
-      require(goodServiceVoucher.id != 0, 'GK013');
+      require(goodServiceVoucher.id != 0, "GK013");
 
       output.goodServiceVoucherStarts[i] = goodServiceVoucher.start;
       output.goodServiceVoucherEnds[i] = goodServiceVoucher.end;
@@ -608,14 +503,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     _setRouter(newRouter);
   }
 
-  function supportsInterface(bytes4 interfaceId)
-    public
-    pure
-    override(IERC165)
-    returns (bool)
-  {
-    return
-      interfaceId == type(IGoodKernel).interfaceId ||
-      interfaceId == type(IKernel).interfaceId;
+  function supportsInterface(bytes4 interfaceId) public pure override(IERC165) returns (bool) {
+    return interfaceId == type(IGoodKernel).interfaceId || interfaceId == type(IKernel).interfaceId;
   }
 }
