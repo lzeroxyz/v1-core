@@ -330,7 +330,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
       if (good.id == 0) continue;
       output.ids[i] = good.id;
       output.states[i] = good.state;
-      output.acceptedTokens[i] = goodacceptedTokens;
+      output.acceptedTokens[i] = good.acceptedTokens;
     }
   }
 
@@ -364,8 +364,8 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     for (uint256 i = 0; i < goodServicesCount - 1; i++) {
       GoodService storage goodService = good.services[good.servicesIds[i]];
 
-      if (goodServicesIds[i] == 0) continue;
-      output.ids[i] = goodServicesIds[i];
+      if (good.servicesIds[i] == 0) continue;
+      output.ids[i] = good.servicesIds[i];
       output.capacities[i] = good.services[i].capacity;
       output.states[i] = good.services[i].state;
     }
@@ -395,14 +395,14 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     output.state = goodService.state;
   }
 
-  function getGoodServiceVouchers(GetGoodServiceVouchersInput getGoodServiceVouchersInput)
+  function getGoodServiceVouchers(GetGoodServiceVouchersInput input)
     external
     view
     virtual
     override
-    returns (GetGoodServiceVouchersOutput memory getGoodServiceVouchersOutput)
+    returns (GetGoodServiceVouchersOutput memory output)
   {
-    Good storage good = _goods[goodOwner][_goodsIds[goodOwner][goodId]];
+    Good storage good = _goods[input.goodOwner][_goodsIds[input.goodOwner][input.goodId]];
 
     // Call on a non existing or non owned good
     require(good.id != 0, "GK011");
@@ -410,7 +410,7 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     output.goodState = good.state;
     output.goodAcceptedTokens = good.acceptedTokens;
 
-    GoodService storage goodService = good.services[good.servicesIds[goodServiceId]];
+    GoodService storage goodService = good.services[good.servicesIds[input.goodServiceId]];
 
     // Call on a non existing or non owned good service
     require(goodService.id != 0, "GK012");
@@ -424,12 +424,12 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
 
     for (uint256 i = 0; i < goodVouchersCount - 1; i++) {
       if (goodVouchers[i].id == 0) continue;
-      getGoodServiceVouchersOutput.goodServiceVoucherIds[i] = goodVouchers[i].id;
-      getGoodServiceVouchersOutput.goodServiceVoucherStarts[i] = goodVouchers[i].start;
-      getGoodServiceVouchersOutput.goodServiceVoucherEnds[i] = goodVouchers[i].end;
-      getGoodServiceVouchersOutput.goodServiceVoucherAmounts[i] = goodVouchers[i].amount;
-      getGoodServiceVouchersOutput.goodServiceVoucherStates[i] = goodVouchers[i].state;
-      getGoodServiceVouchersOutput.goodServiceVoucherDestructionTypes[i] = goodVouchers[i].destructionType;
+      output.goodServiceVoucherIds[i] = goodVouchers[i].id;
+      output.goodServiceVoucherStarts[i] = goodVouchers[i].start;
+      output.goodServiceVoucherEnds[i] = goodVouchers[i].end;
+      output.goodServiceVoucherAmounts[i] = goodVouchers[i].amount;
+      output.goodServiceVoucherStates[i] = goodVouchers[i].state;
+      output.goodServiceVoucherDestructionTypes[i] = goodVouchers[i].destructionType;
     }
   }
 

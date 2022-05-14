@@ -6,6 +6,7 @@ import "../globals/IKernel.sol";
 
 import "../../structs/Good.sol";
 import "../../structs/inputs/Good.sol";
+import "../../structs/outputs/Good.sol";
 
 /// @title The interface for the GoodKernel contract
 /// @notice The GoodKernel is responsible for managing the Good structs with the services and the vouchers
