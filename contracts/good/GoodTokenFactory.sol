@@ -2,32 +2,23 @@
 
 pragma solidity >=0.4.22 <0.9.0;
 
-import '@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/security/Pausable.sol';
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
-import '../utils/Kernable.sol';
+import "../utils/Kernable.sol";
 
-import '../interfaces/good/IGoodTokenFactory.sol';
+import "../interfaces/good/IGoodTokenFactory.sol";
 
-contract GoodTokenFactory is
-  ERC721URIStorage,
-  Pausable,
-  Ownable,
-  Kernable,
-  IGoodTokenFactory
-{
+contract GoodTokenFactory is ERC721URIStorage, Pausable, Ownable, Kernable, IGoodTokenFactory {
   uint256 public totalTokens = 0;
 
-  constructor(address kernelAddress)
-    ERC721('Good', 'LZEROG')
-    Kernable(kernelAddress)
-  {}
+  constructor(address kernelAddress) ERC721("Good", "LZEROG") Kernable(kernelAddress) {}
 
   modifier onlyFromKernelOrOwner() {
     require(
       _msgSender() == owner() || _msgSender() == kernel(),
-      'GoodTokenFactory: Caller is not the owner or the Kernel contract'
+      "GoodTokenFactory: Caller is not the owner or the Kernel contract"
     );
     _;
   }
@@ -47,10 +38,7 @@ contract GoodTokenFactory is
     return _doMint(to, tokenUri);
   }
 
-  function _doMint(address to, string memory tokenUri)
-    internal
-    returns (uint256 tokenId)
-  {
+  function _doMint(address to, string memory tokenUri) internal returns (uint256 tokenId) {
     unchecked {
       tokenId = ++totalTokens;
     }
@@ -59,20 +47,14 @@ contract GoodTokenFactory is
     _setTokenURI(tokenId, tokenUri);
   }
 
-  function burn(address from, uint256 tokenId)
-    external
-    virtual
-    override
-    onlyFromKernel
-    whenNotPaused
-  {
+  function burn(address from, uint256 tokenId) external virtual override onlyFromKernel whenNotPaused {
     _doBurn(from, tokenId);
   }
 
   function _doBurn(address from, uint256 tokenId) internal {
     require(
       _isApprovedOrOwner(from, tokenId),
-      'GoodServiceTokenFactory: caller is not owner or approved to burn this token'
+      "GoodServiceTokenFactory: caller is not owner or approved to burn this token"
     );
 
     _burn(tokenId);
@@ -88,12 +70,7 @@ contract GoodTokenFactory is
   /**
         Kernel and Owner-based methods
      */
-  function paused()
-    public
-    view
-    override(Pausable, IGoodTokenFactory)
-    returns (bool)
-  {
+  function paused() public view override(Pausable, IGoodTokenFactory) returns (bool) {
     return super.paused();
   }
 
@@ -105,12 +82,7 @@ contract GoodTokenFactory is
     _unpause();
   }
 
-  function supportsInterface(bytes4 interfaceId)
-    public
-    view
-    override(ERC721, IERC165)
-    returns (bool)
-  {
+  function supportsInterface(bytes4 interfaceId) public view override(ERC721, IERC165) returns (bool) {
     return
       interfaceId == type(ITokenFactory).interfaceId ||
       interfaceId == type(IGoodTokenFactory).interfaceId ||

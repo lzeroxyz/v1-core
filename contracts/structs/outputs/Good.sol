@@ -2,7 +2,7 @@
 
 pragma solidity >=0.4.22 <0.9.0;
 
-import '../Good.sol';
+import "../Good.sol";
 
 struct GetGoodsOutput {
   uint256[] ids;
@@ -18,7 +18,6 @@ struct GetGoodOutput {
 struct GetGoodServicesOutput {
   GoodState goodState;
   address[] goodAcceptedTokens;
-
   uint256[] goodServiceIds;
   uint256[] goodServiceCapacities;
   GoodServiceState[] goodServiceStates;
@@ -27,7 +26,6 @@ struct GetGoodServicesOutput {
 struct GetGoodServiceOutput {
   GoodState goodState;
   address[] goodAcceptedTokens;
-
   uint256 goodServiceCapacity;
   GoodServiceState goodServiceState;
 }
@@ -35,10 +33,8 @@ struct GetGoodServiceOutput {
 struct GetGoodServiceVouchersOutput {
   GoodState goodState;
   address[] goodAcceptedTokens;
-
   uint256 goodServiceCapacity;
   GoodServiceState goodServiceState;
-
   uint256[] goodServiceVoucherIds;
   uint128[] goodServiceVoucherStarts;
   uint128[] goodServiceVoucherEnds;
@@ -50,10 +46,8 @@ struct GetGoodServiceVouchersOutput {
 struct GetArrayGoodServiceVouchersOutput {
   GoodState goodState;
   address[] goodAcceptedTokens;
-
   uint256 goodServiceCapacity;
   GoodServiceState goodServiceState;
-  
   uint128[] goodServiceVoucherStarts;
   uint128[] goodServiceVoucherEnds;
   uint256[] goodServiceVoucherAmounts;

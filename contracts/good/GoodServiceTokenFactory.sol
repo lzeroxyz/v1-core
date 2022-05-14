@@ -1,44 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/security/Pausable.sol';
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
-import '../utils/Kernable.sol';
+import "../utils/Kernable.sol";
 
-import '../interfaces/good/IGoodServiceTokenFactory.sol';
+import "../interfaces/good/IGoodServiceTokenFactory.sol";
 
-contract GoodServiceTokenFactory is
-  ERC1155,
-  Pausable,
-  Ownable,
-  Kernable,
-  IGoodServiceTokenFactory
-{
+contract GoodServiceTokenFactory is ERC1155, Pausable, Ownable, Kernable, IGoodServiceTokenFactory {
   uint256 public totalTokens = 0;
 
   mapping(uint256 => string) private _tokenUris;
 
-  constructor(string memory globalUri, address kernelAddress)
-    ERC1155(globalUri)
-    Kernable(kernelAddress)
-  {}
+  constructor(string memory globalUri, address kernelAddress) ERC1155(globalUri) Kernable(kernelAddress) {}
 
   modifier onlyFromKernelOrOwner() {
     require(
       _msgSender() == owner() || _msgSender() == kernel(),
-      'GoodTokenFactory: Caller is not the owner or the Kernel contract'
+      "GoodTokenFactory: Caller is not the owner or the Kernel contract"
     );
     _;
   }
 
-  function uri(uint256 tokenId)
-    public
-    view
-    override(ERC1155, IERC1155MetadataURI)
-    returns (string memory)
-  {
+  function uri(uint256 tokenId) public view override(ERC1155, IERC1155MetadataURI) returns (string memory) {
     string storage tokenUri = _tokenUris[tokenId];
 
     if (bytes(tokenUri).length == 0) {
@@ -51,11 +37,7 @@ contract GoodServiceTokenFactory is
   /**
         Kernel-based methods
      */
-  function setTokenUri(uint256 tokenId, string memory tokenUri)
-    external
-    override
-    onlyFromKernel
-  {
+  function setTokenUri(uint256 tokenId, string memory tokenUri) external override onlyFromKernel {
     _tokenUris[tokenId] = tokenUri;
   }
 
@@ -70,10 +52,7 @@ contract GoodServiceTokenFactory is
     return _doMint(to, tokenUri);
   }
 
-  function _doMint(address to, string memory tokenUri)
-    internal
-    returns (uint256 tokenId)
-  {
+  function _doMint(address to, string memory tokenUri) internal returns (uint256 tokenId) {
     unchecked {
       tokenId = ++totalTokens;
     }
@@ -87,13 +66,7 @@ contract GoodServiceTokenFactory is
     return tokenId;
   }
 
-  function burn(address from, uint256 id)
-    external
-    virtual
-    override
-    onlyFromKernel
-    whenNotPaused
-  {
+  function burn(address from, uint256 id) external virtual override onlyFromKernel whenNotPaused {
     _doBurn(from, id);
   }
 
@@ -105,13 +78,7 @@ contract GoodServiceTokenFactory is
     }
   }
 
-  function burnBatch(address from, uint256[] calldata ids)
-    external
-    virtual
-    override
-    onlyFromKernel
-    whenNotPaused
-  {
+  function burnBatch(address from, uint256[] calldata ids) external virtual override onlyFromKernel whenNotPaused {
     _doBurnBatch(from, ids);
   }
 
@@ -132,12 +99,7 @@ contract GoodServiceTokenFactory is
   /**
         Kernel and Owner-based methods
      */
-  function paused()
-    public
-    view
-    override(Pausable, IGoodServiceTokenFactory)
-    returns (bool)
-  {
+  function paused() public view override(Pausable, IGoodServiceTokenFactory) returns (bool) {
     return super.paused();
   }
 
@@ -149,11 +111,7 @@ contract GoodServiceTokenFactory is
     _unpause();
   }
 
-  function setUri(string memory newuri)
-    external
-    override
-    onlyFromKernelOrOwner
-  {
+  function setUri(string memory newuri) external override onlyFromKernelOrOwner {
     _setURI(newuri);
   }
 
@@ -161,12 +119,7 @@ contract GoodServiceTokenFactory is
     _setKernel(newKernel);
   }
 
-  function supportsInterface(bytes4 interfaceId)
-    public
-    view
-    override(ERC1155, IERC165)
-    returns (bool)
-  {
+  function supportsInterface(bytes4 interfaceId) public view override(ERC1155, IERC165) returns (bool) {
     return
       interfaceId == type(ITokenFactory).interfaceId ||
       interfaceId == type(IGoodServiceTokenFactory).interfaceId ||

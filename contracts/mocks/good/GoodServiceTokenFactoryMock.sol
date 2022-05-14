@@ -2,18 +2,12 @@
 
 pragma solidity >=0.4.22 <0.9.0;
 
-import '../../good/GoodServiceTokenFactory.sol';
+import "../../good/GoodServiceTokenFactory.sol";
 
 contract GoodServiceTokenFactoryMock is GoodServiceTokenFactory {
-  constructor(string memory globalUri, address kernelAddress)
-    GoodServiceTokenFactory(globalUri, kernelAddress)
-  {}
+  constructor(string memory globalUri, address kernelAddress) GoodServiceTokenFactory(globalUri, kernelAddress) {}
 
-  function mint(address to, string calldata tokenUri)
-    external
-    override
-    returns (uint256)
-  {
+  function mint(address to, string calldata tokenUri) external override returns (uint256) {
     return _doMint(to, tokenUri);
   }
 

@@ -2,12 +2,12 @@
 
 pragma solidity >=0.4.22 <0.9.0;
 
-import '../../structs/Good.sol';
-import '../../structs/inputs/Good.sol';
+import "../../structs/Good.sol";
+import "../../structs/inputs/Good.sol";
 
-import '../../interfaces/good/IGoodTokenFactory.sol';
-import '../../interfaces/good/IGoodServiceTokenFactory.sol';
-import '../../interfaces/good/IGoodServiceVoucherTokenFactory.sol';
+import "../../interfaces/good/IGoodTokenFactory.sol";
+import "../../interfaces/good/IGoodServiceTokenFactory.sol";
+import "../../interfaces/good/IGoodServiceVoucherTokenFactory.sol";
 
 library GoodHelper {
   function create(
@@ -17,14 +17,9 @@ library GoodHelper {
     CreateGoodInput memory createGoodInput,
     address goodTokenFactoryAddress
   ) public returns (uint256 mintedGoodId, GoodState mintedGoodState) {
-    IGoodTokenFactory goodTokenFactory = IGoodTokenFactory(
-      goodTokenFactoryAddress
-    );
+    IGoodTokenFactory goodTokenFactory = IGoodTokenFactory(goodTokenFactoryAddress);
 
-    mintedGoodId = goodTokenFactory.mint(
-      createGoodInput.from,
-      createGoodInput.tokenUri
-    );
+    mintedGoodId = goodTokenFactory.mint(createGoodInput.from, createGoodInput.tokenUri);
 
     mintedGoodState = GoodState.Unpaused;
 
@@ -50,20 +45,17 @@ library GoodHelper {
     address goodServiceTokenFactoryAddress,
     address goodServiceVoucherTokenFactoryAddress
   ) public {
-    IGoodServiceTokenFactory goodServiceTokenFactory = IGoodServiceTokenFactory(
-      goodServiceTokenFactoryAddress
-    );
+    IGoodServiceTokenFactory goodServiceTokenFactory = IGoodServiceTokenFactory(goodServiceTokenFactoryAddress);
 
     IGoodServiceVoucherTokenFactory goodServiceVoucherTokenFactory = IGoodServiceVoucherTokenFactory(
-        goodServiceVoucherTokenFactoryAddress
-      );
+      goodServiceVoucherTokenFactoryAddress
+    );
 
     if (good.servicesCount > 1) {
       uint256[] memory burnableGoodServiceIds;
 
       for (uint256 i = 0; i < good.servicesCount - 1; i++) {
-        mapping(uint256 => GoodServiceVoucher)
-          storage goodServiceVouchers = good.services[i].vouchers;
+        mapping(uint256 => GoodServiceVoucher) storage goodServiceVouchers = good.services[i].vouchers;
 
         uint256[] memory burnableServiceGoodVoucherIds;
         uint256[] memory burnableServiceGoodVoucherAmounts;
@@ -74,8 +66,7 @@ library GoodHelper {
 
             burnableServiceGoodVoucherIds[j] = goodServiceVouchers[j].id;
 
-            burnableServiceGoodVoucherAmounts[j] = goodServiceVouchers[j]
-              .amount;
+            burnableServiceGoodVoucherAmounts[j] = goodServiceVouchers[j].amount;
           }
 
           goodServiceVoucherTokenFactory.burnBatch(
@@ -92,33 +83,28 @@ library GoodHelper {
         }
       }
 
-      goodServiceTokenFactory.burnBatch(
-        removeGoodInput.from,
-        burnableGoodServiceIds
-      );
+      goodServiceTokenFactory.burnBatch(removeGoodInput.from, burnableGoodServiceIds);
     } else if (good.servicesCount == 1) {
       goodServiceTokenFactory.burn(removeGoodInput.from, good.services[0].id);
     }
 
     delete userGoods[userGoodsIds[removeGoodInput.goodId]];
 
-    IGoodTokenFactory goodTokenFactory = IGoodTokenFactory(
-      goodTokenFactoryAddress
-    );
+    IGoodTokenFactory goodTokenFactory = IGoodTokenFactory(goodTokenFactoryAddress);
 
     goodTokenFactory.burn(removeGoodInput.from, good.id);
   }
 
   function pause(Good storage good) public {
     // The good is already paused
-    require(good.state == GoodState.Unpaused, 'GK021');
+    require(good.state == GoodState.Unpaused, "GK021");
 
     good.state = GoodState.Paused;
   }
 
   function unpause(Good storage good) public {
     // The good is already unpaused
-    require(good.state == GoodState.Unpaused, 'GK022');
+    require(good.state == GoodState.Unpaused, "GK022");
 
     good.state = GoodState.Unpaused;
   }
@@ -127,21 +113,10 @@ library GoodHelper {
     Good storage good,
     CreateGoodServiceInput memory createGoodServiceInput,
     address goodServiceTokenFactoryAddress
-  )
-    public
-    returns (
-      uint256 mintedGoodServiceId,
-      GoodServiceState mintedGoodServiceState
-    )
-  {
-    IGoodServiceTokenFactory goodServiceTokenFactory = IGoodServiceTokenFactory(
-      goodServiceTokenFactoryAddress
-    );
+  ) public returns (uint256 mintedGoodServiceId, GoodServiceState mintedGoodServiceState) {
+    IGoodServiceTokenFactory goodServiceTokenFactory = IGoodServiceTokenFactory(goodServiceTokenFactoryAddress);
 
-    mintedGoodServiceId = goodServiceTokenFactory.mint(
-      createGoodServiceInput.from,
-      createGoodServiceInput.tokenUri
-    );
+    mintedGoodServiceId = goodServiceTokenFactory.mint(createGoodServiceInput.from, createGoodServiceInput.tokenUri);
 
     mintedGoodServiceState = GoodServiceState.Unpaused;
 
@@ -150,8 +125,7 @@ library GoodHelper {
     }
 
     good.services[good.servicesCount].id = mintedGoodServiceId;
-    good.services[good.servicesCount].capacity = createGoodServiceInput
-      .capacity;
+    good.services[good.servicesCount].capacity = createGoodServiceInput.capacity;
     good.services[good.servicesCount].state = mintedGoodServiceState;
 
     good.servicesIds[mintedGoodServiceId] = good.servicesCount;
@@ -164,11 +138,9 @@ library GoodHelper {
     address goodServiceTokenFactoryAddress
   ) public {
     // Unable to burn an unpaused good service
-    require(goodService.state == GoodServiceState.Paused, 'GK024');
+    require(goodService.state == GoodServiceState.Paused, "GK024");
 
-    IGoodServiceTokenFactory goodServiceTokenFactory = IGoodServiceTokenFactory(
-      goodServiceTokenFactoryAddress
-    );
+    IGoodServiceTokenFactory goodServiceTokenFactory = IGoodServiceTokenFactory(goodServiceTokenFactoryAddress);
 
     goodServiceTokenFactory.burn(goodOwner, goodService.id);
 

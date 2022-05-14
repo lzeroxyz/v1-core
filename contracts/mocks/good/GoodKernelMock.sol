@@ -2,7 +2,7 @@
 
 pragma solidity >=0.4.22 <0.9.0;
 
-import '../../good/GoodKernel.sol';
+import "../../good/GoodKernel.sol";
 
 contract GoodKernelMock is GoodKernel {
   constructor(
@@ -10,42 +10,24 @@ contract GoodKernelMock is GoodKernel {
     address goodTokenFactory,
     address goodServiceTokenFactory,
     address goodServiceVoucherTokenFactory
-  )
-    GoodKernel(
-      routerAddress,
-      goodTokenFactory,
-      goodServiceTokenFactory,
-      goodServiceVoucherTokenFactory
-    )
-  {}
+  ) GoodKernel(routerAddress, goodTokenFactory, goodServiceTokenFactory, goodServiceVoucherTokenFactory) {}
 
-  function createGood(CreateGoodInput calldata createGoodInput)
-    external
-    override
-    returns (uint256, GoodState)
-  {
+  function createGood(CreateGoodInput calldata createGoodInput) external override returns (uint256, GoodState) {
     return (
-      IGoodTokenFactory(_goodTokenFactory).mint(
-        createGoodInput.from,
-        createGoodInput.tokenUri
-      ),
+      IGoodTokenFactory(_goodTokenFactory).mint(createGoodInput.from, createGoodInput.tokenUri),
       GoodState.Paused
     );
   }
 
-  function removeGood(RemoveGoodInput calldata removeGoodInput)
-    external
-    override
-  {
-    IGoodTokenFactory(_goodTokenFactory).burn(
-      removeGoodInput.from,
-      removeGoodInput.goodId
-    );
+  function removeGood(RemoveGoodInput calldata removeGoodInput) external override {
+    IGoodTokenFactory(_goodTokenFactory).burn(removeGoodInput.from, removeGoodInput.goodId);
   }
 
-  function createGoodService(
-    CreateGoodServiceInput calldata createGoodServiceInput
-  ) external override returns (uint256, GoodServiceState) {
+  function createGoodService(CreateGoodServiceInput calldata createGoodServiceInput)
+    external
+    override
+    returns (uint256, GoodServiceState)
+  {
     return (
       IGoodServiceTokenFactory(_goodServiceTokenFactory).mint(
         createGoodServiceInput.from,
@@ -55,9 +37,7 @@ contract GoodKernelMock is GoodKernel {
     );
   }
 
-  function removeGoodService(
-    RemoveGoodServiceInput calldata removeGoodServiceInput
-  ) external override {
+  function removeGoodService(RemoveGoodServiceInput calldata removeGoodServiceInput) external override {
     IGoodServiceTokenFactory(_goodServiceTokenFactory).burn(
       removeGoodServiceInput.from,
       removeGoodServiceInput.goodServiceId
@@ -69,15 +49,14 @@ contract GoodKernelMock is GoodKernel {
     uint256 goodId,
     uint256[] memory goodServiceIds
   ) external {
-    IGoodServiceTokenFactory(_goodServiceTokenFactory).burnBatch(
-      from,
-      goodServiceIds
-    );
+    IGoodServiceTokenFactory(_goodServiceTokenFactory).burnBatch(from, goodServiceIds);
   }
 
-  function createGoodServiceVoucher(
-    CreateGoodServiceVoucherInput calldata createGoodServiceVoucher
-  ) external override returns (uint256) {
+  function createGoodServiceVoucher(CreateGoodServiceVoucherInput calldata createGoodServiceVoucher)
+    external
+    override
+    returns (uint256)
+  {
     return
       IGoodServiceVoucherTokenFactory(_goodServiceVoucherTokenFactory).mint(
         createGoodServiceVoucher.from,
@@ -86,9 +65,7 @@ contract GoodKernelMock is GoodKernel {
       );
   }
 
-  function removeGoodServiceVoucher(
-    RemoveGoodServiceVoucherInput calldata removeGoodServiceVoucher
-  ) external override {
+  function removeGoodServiceVoucher(RemoveGoodServiceVoucherInput calldata removeGoodServiceVoucher) external override {
     IGoodServiceVoucherTokenFactory(_goodServiceVoucherTokenFactory).burn(
       removeGoodServiceVoucher.from,
       removeGoodServiceVoucher.goodServiceVoucherId,

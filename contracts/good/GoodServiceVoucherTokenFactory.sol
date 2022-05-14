@@ -1,46 +1,32 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/security/Pausable.sol';
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
-import '../utils/Kernable.sol';
-import '../utils/Routable.sol';
-import '../utils/TokenFactoryUtils.sol';
+import "../utils/Kernable.sol";
+import "../utils/Routable.sol";
+import "../utils/TokenFactoryUtils.sol";
 
-import '../interfaces/good/IGoodServiceVoucherTokenFactory.sol';
+import "../interfaces/good/IGoodServiceVoucherTokenFactory.sol";
 
-contract GoodServiceVoucherTokenFactory is
-  ERC1155,
-  Pausable,
-  Ownable,
-  Kernable,
-  IGoodServiceVoucherTokenFactory
-{
+contract GoodServiceVoucherTokenFactory is ERC1155, Pausable, Ownable, Kernable, IGoodServiceVoucherTokenFactory {
   uint256 public totalTokens = 0;
 
   mapping(uint256 => string) private _tokenUris;
 
-  constructor(string memory globalUri, address kernelAddress)
-    ERC1155(globalUri)
-    Kernable(kernelAddress)
-  {}
+  constructor(string memory globalUri, address kernelAddress) ERC1155(globalUri) Kernable(kernelAddress) {}
 
   modifier onlyFromKernelOrOwner() {
     require(
       _msgSender() == owner() || _msgSender() == kernel(),
-      'GoodTokenFactory: Caller is not the owner or the Kernel contract'
+      "GoodTokenFactory: Caller is not the owner or the Kernel contract"
     );
     _;
   }
 
-  function uri(uint256 tokenId)
-    public
-    view
-    override(ERC1155, IERC1155MetadataURI)
-    returns (string memory)
-  {
+  function uri(uint256 tokenId) public view override(ERC1155, IERC1155MetadataURI) returns (string memory) {
     string storage tokenUri = _tokenUris[tokenId];
 
     if (bytes(tokenUri).length == 0) {
@@ -53,11 +39,7 @@ contract GoodServiceVoucherTokenFactory is
   /**
         Kernel-based methods
      */
-  function setTokenUri(uint256 tokenId, string memory tokenUri)
-    external
-    override
-    onlyFromKernel
-  {
+  function setTokenUri(uint256 tokenId, string memory tokenUri) external override onlyFromKernel {
     _tokenUris[tokenId] = tokenUri;
   }
 
@@ -65,14 +47,7 @@ contract GoodServiceVoucherTokenFactory is
     address to,
     uint256 amount,
     string memory tokenUri
-  )
-    external
-    virtual
-    override
-    onlyFromKernel
-    whenNotPaused
-    returns (uint256 tokenId)
-  {
+  ) external virtual override onlyFromKernel whenNotPaused returns (uint256 tokenId) {
     return _doMint(to, amount, tokenUri);
   }
 
@@ -98,14 +73,7 @@ contract GoodServiceVoucherTokenFactory is
     address to,
     uint256[] memory amounts,
     string[] memory tokenUris
-  )
-    external
-    virtual
-    override
-    onlyFromKernel
-    whenNotPaused
-    returns (uint256[] memory)
-  {
+  ) external virtual override onlyFromKernel whenNotPaused returns (uint256[] memory) {
     return _doMintBatch(to, amounts, tokenUris);
   }
 
@@ -114,10 +82,7 @@ contract GoodServiceVoucherTokenFactory is
     uint256[] memory amounts,
     string[] memory tokenUris
   ) internal returns (uint256[] memory tokenIds) {
-    require(
-      tokenUris.length == amounts.length,
-      'GoodServiceVoucherTokenFactory: Uris length and amount mismatch'
-    );
+    require(tokenUris.length == amounts.length, "GoodServiceVoucherTokenFactory: Uris length and amount mismatch");
 
     tokenIds = new uint256[](amounts.length);
 
@@ -204,12 +169,7 @@ contract GoodServiceVoucherTokenFactory is
   /**
         Kernel and Owner-based methods
      */
-  function paused()
-    public
-    view
-    override(Pausable, IGoodServiceVoucherTokenFactory)
-    returns (bool)
-  {
+  function paused() public view override(Pausable, IGoodServiceVoucherTokenFactory) returns (bool) {
     return super.paused();
   }
 
@@ -221,11 +181,7 @@ contract GoodServiceVoucherTokenFactory is
     _unpause();
   }
 
-  function setUri(string memory newuri)
-    external
-    override
-    onlyFromKernelOrOwner
-  {
+  function setUri(string memory newuri) external override onlyFromKernelOrOwner {
     _setURI(newuri);
   }
 
@@ -233,12 +189,7 @@ contract GoodServiceVoucherTokenFactory is
     _setKernel(newKernel);
   }
 
-  function supportsInterface(bytes4 interfaceId)
-    public
-    view
-    override(ERC1155, IERC165)
-    returns (bool)
-  {
+  function supportsInterface(bytes4 interfaceId) public view override(ERC1155, IERC165) returns (bool) {
     return
       interfaceId == type(ITokenFactory).interfaceId ||
       interfaceId == type(IGoodServiceVoucherTokenFactory).interfaceId ||
