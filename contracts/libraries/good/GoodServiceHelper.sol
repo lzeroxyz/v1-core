@@ -39,12 +39,14 @@ library GoodServiceHelper {
     newGoodServiceVoucher.destructionType = createGoodServiceVoucherInput.destructionType;
 
     unchecked {
-      goodService.vouchersCount += 1;
+      uint256 localGoodServiceVoucherCount = goodService.vouchersCount + 1;
+
+      goodService.vouchersCount = localGoodServiceVoucherCount;
+    
+      goodService.vouchers[localGoodServiceVoucherCount] = newGoodServiceVoucher;
+
+      goodService.vouchersIds[mintedGoodServiceVoucherId] = localGoodServiceVoucherCount;
     }
-
-    goodService.vouchers[goodService.vouchersCount] = newGoodServiceVoucher;
-
-    goodService.vouchersIds[newGoodServiceVoucher.id] = goodService.vouchersCount;
   }
 
   function removeVoucher(
