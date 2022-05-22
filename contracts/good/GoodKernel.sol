@@ -184,44 +184,49 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
   }
 
   /// @inheritdoc IGoodKernel
-  function removeGoodService(RemoveGoodServiceInput calldata removeGoodServiceInput)
-    external
-    virtual
-    override
-    whenNotPaused
-  {
-    Good storage good = _goods[removeGoodServiceInput.from][
-      _goodsIds[removeGoodServiceInput.from][removeGoodServiceInput.goodId]
-    ];
+  function removeGoodService(RemoveGoodServiceInput calldata input) external virtual override whenNotPaused {
+    uint256 goodId = _goodsIds[input.from][input.goodId];
+
+    require(goodId != 0, "GK011");
+
+    Good storage good = _goods[input.from][goodId];
 
     // Call on a non existing or non owned good
     require(good.id != 0, "GK011");
 
-    GoodService storage goodService = good.services[good.servicesIds[removeGoodServiceInput.goodServiceId]];
+    uint256 goodServiceId = good.servicesIds[input.goodServiceId];
+
+    require(goodServiceId != 0, "GK012");
+
+    GoodService storage goodService = good.services[goodServiceId];
 
     // Call on a non existing good service
     require(goodService.id != 0, "GK012");
 
-    good.removeService(goodService, removeGoodServiceInput.from, _goodServiceTokenFactory);
+    // Unable to burn an unpaused good service
+    require(goodService.state == GoodServiceState.Paused, "GK024");
 
-    emit GoodServiceBurned(removeGoodServiceInput.from, good.id, goodService.id);
+    good.removeService(goodService, goodServiceId, _goodServiceTokenFactory);
+
+    emit GoodServiceBurned(input.from, good.id, goodService.id);
   }
 
   /// @inheritdoc IGoodKernel
-  function pauseGoodService(PauseGoodServiceInput calldata pauseGoodServiceInput)
-    external
-    virtual
-    override
-    whenNotPaused
-  {
-    Good storage good = _goods[pauseGoodServiceInput.from][
-      _goodsIds[pauseGoodServiceInput.from][pauseGoodServiceInput.goodId]
-    ];
+  function pauseGoodService(PauseGoodServiceInput calldata input) external virtual override whenNotPaused {
+    uint256 goodId = _goodsIds[input.from][input.goodId];
+
+    require(goodId != 0, "GK011");
+
+    Good storage good = _goods[input.from][goodId];
 
     // Call on a non existing or non owned good
     require(good.id != 0, "GK011");
 
-    GoodService storage goodService = good.services[good.servicesIds[pauseGoodServiceInput.goodServiceId]];
+    uint256 goodServiceId = good.servicesIds[input.goodServiceId];
+
+    require(goodServiceId != 0, "GK012");
+
+    GoodService storage goodService = good.services[goodServiceId];
 
     // Call on a non existing good service
     require(goodService.id != 0, "GK012");
@@ -231,34 +236,32 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
 
     goodService.state = GoodServiceState.Paused;
 
-    emit GoodServicePaused(pauseGoodServiceInput.from, good.id, goodService.id);
+    emit GoodServicePaused(input.from, good.id, goodService.id);
   }
 
   /// @inheritdoc IGoodKernel
-  function unpauseGoodService(UnPauseGoodServiceInput calldata unpauseGoodServiceInput)
-    external
-    virtual
-    override
-    whenNotPaused
-  {
-    Good storage good = _goods[unpauseGoodServiceInput.from][
-      _goodsIds[unpauseGoodServiceInput.from][unpauseGoodServiceInput.goodId]
-    ];
+  function unpauseGoodService(UnPauseGoodServiceInput calldata input) external virtual override whenNotPaused {
+    uint256 goodId = _goodsIds[input.from][input.goodId];
+
+    require(goodId != 0, "GK011");
+
+    Good storage good = _goods[input.from][goodId];
 
     // Call on a non existing or non owned good
     require(good.id != 0, "GK011");
 
-    GoodService storage goodService = good.services[good.servicesIds[unpauseGoodServiceInput.goodServiceId]];
+    uint256 goodServiceId = good.servicesIds[input.goodServiceId];
 
-    // Call on a non existing good service
-    require(goodService.id != 0, "GK012");
+    require(goodServiceId != 0, "GK012");
+
+    GoodService storage goodService = good.services[goodServiceId];
 
     // The good service is already unpaused
     require(goodService.state == GoodServiceState.Paused, "GK024");
 
     goodService.state = GoodServiceState.Unpaused;
 
-    emit GoodServiceUnpaused(unpauseGoodServiceInput.from, good.id, goodService.id);
+    emit GoodServiceUnpaused(input.from, good.id, goodService.id);
   }
 
   /// @inheritdoc IGoodKernel
@@ -288,7 +291,18 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
 
     mintedGoodServiceVoucher = goodService.addVoucher(createGoodServiceVoucherInput, _goodServiceVoucherTokenFactory);
 
-    // emit GoodServiceVoucherCreated(createGoodServiceVoucherInput.from, createGoodServiceVoucherInput.goodId, createGoodServiceVoucherInput.goodServiceId, goodServiceVoucherId, goodServiceVoucherStart, goodServiceVoucherEnd, goodServiceVoucherAmount, goodServiceVoucherState, goodServiceVoucherDestructionType, goodServiceVoucherUri);
+    emit GoodServiceVoucherCreated(
+      createGoodServiceVoucherInput.from,
+      createGoodServiceVoucherInput.goodId,
+      createGoodServiceVoucherInput.goodServiceId,
+      goodServiceVoucherId,
+      goodServiceVoucherStart,
+      goodServiceVoucherEnd,
+      goodServiceVoucherAmount,
+      goodServiceVoucherState,
+      goodServiceVoucherDestructionType,
+      goodServiceVoucherUri
+    );
   }
 
   /// @inheritdoc IGoodKernel
@@ -380,13 +394,17 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
 
     uint256 goodServicesCount = good.servicesCount;
 
-    for (uint256 i = 0; i < goodServicesCount - 1; i++) {
-      GoodService storage goodService = good.services[good.servicesIds[i]];
+    require(goodServicesCount != 0, "GK015");
 
-      if (good.servicesIds[i] == 0) continue;
-      output.ids[i] = good.servicesIds[i];
-      output.capacities[i] = good.services[i].capacity;
-      output.states[i] = good.services[i].state;
+    for (uint256 i = 0; i < goodServicesCount - 1; i++) {
+      uint256 goodServiceId = good.servicesIds[i];
+
+      GoodService storage goodService = good.services[goodServiceId];
+
+      if (goodServiceId == 0) continue;
+      output.goodServiceIds[i] = goodServiceId;
+      output.goodServiceCapacities[i] = goodService.capacity;
+      output.goodServiceStates[i] = goodService.state;
     }
   }
 
@@ -411,8 +429,8 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
     // Call on a non existing or non owned good service
     require(goodService.id != 0, "GK012");
 
-    output.capacity = goodService.capacity;
-    output.state = goodService.state;
+    output.goodServiceCapacity = goodService.capacity;
+    output.goodServiceState = goodService.state;
   }
 
   /// @inheritdoc IGoodKernel
@@ -450,7 +468,6 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
       output.goodServiceVoucherEnds[i] = goodVouchers[i].end;
       output.goodServiceVoucherAmounts[i] = goodVouchers[i].amount;
       output.goodServiceVoucherStates[i] = goodVouchers[i].state;
-      output.goodServiceVoucherDestructionTypes[i] = goodVouchers[i].destructionType;
     }
   }
 
@@ -488,8 +505,6 @@ contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
       output.goodServiceVoucherEnds[i] = goodServiceVoucher.end;
       output.goodServiceVoucherAmounts[i] = goodServiceVoucher.amount;
       output.goodServiceVoucherStates[i] = goodServiceVoucher.state;
-
-      output.goodServiceVoucherDestructionTypes[i] = goodServiceVoucher.destructionType;
     }
   }
 
