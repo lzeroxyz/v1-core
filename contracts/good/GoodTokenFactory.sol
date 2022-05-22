@@ -10,6 +10,7 @@ import "../utils/Kernable.sol";
 
 import "../interfaces/good/IGoodTokenFactory.sol";
 
+/// @inheritdoc IGoodTokenFactory
 contract GoodTokenFactory is ERC721URIStorage, Pausable, Ownable, Kernable, IGoodTokenFactory {
   uint256 public totalTokens = 0;
 
@@ -27,6 +28,7 @@ contract GoodTokenFactory is ERC721URIStorage, Pausable, Ownable, Kernable, IGoo
         Kernel-based methods
      */
 
+  /// @inheritdoc IGoodTokenFactory
   function mint(address to, string calldata tokenUri)
     external
     virtual
@@ -47,6 +49,7 @@ contract GoodTokenFactory is ERC721URIStorage, Pausable, Ownable, Kernable, IGoo
     _setTokenURI(tokenId, tokenUri);
   }
 
+  /// @inheritdoc IGoodTokenFactory
   function burn(address from, uint256 tokenId) external virtual override onlyFromKernel whenNotPaused {
     _doBurn(from, tokenId);
   }
