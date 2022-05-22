@@ -13,7 +13,7 @@ interface IGoodTokenFactory is IERC721, IERC721Metadata, ITokenFactory {
   /// @notice Mints a new Good NFT
   /// @param to The address of the new owner of the Good NFT
   /// @param tokenUri The uri of the Good NFT
-  /// @return The id of the new Good NFT
+  /// @return tokenId The id of the new Good NFT
   function mint(address to, string memory tokenUri) external returns (uint256 tokenId);
 
   /// @notice Burns a Good NFT
