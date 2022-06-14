@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "../utils/ERC1155/ERC1155.sol";
+import "../utils/access/Ownable.sol";
+import "../utils/security/Pausable.sol";
 
-import "../utils/Kernable.sol";
+import "../utils/access/Kernable.sol";
+import "../utils/access/Routable.sol";
 
 import "../interfaces/good/IGoodServiceTokenFactory.sol";
 

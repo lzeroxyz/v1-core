@@ -35,17 +35,10 @@ enum GoodServiceVoucherState {
   Unavailable
 }
 
-enum GoodServiceVoucherDestructionType {
-  AfterStart,
-  AfterEnd,
-  BetweenStartAndEnd
-}
-
 struct GoodServiceVoucher {
   uint256 id;
   uint128 start;
   uint128 end;
   uint256 amount;
   GoodServiceVoucherState state;
-  GoodServiceVoucherDestructionType destructionType;
 }

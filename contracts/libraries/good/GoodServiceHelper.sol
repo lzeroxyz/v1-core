@@ -42,7 +42,7 @@ library GoodServiceHelper {
       uint256 localGoodServiceVoucherCount = goodService.vouchersCount + 1;
 
       goodService.vouchersCount = localGoodServiceVoucherCount;
-    
+
       goodService.vouchers[localGoodServiceVoucherCount] = newGoodServiceVoucher;
 
       goodService.vouchersIds[mintedGoodServiceVoucherId] = localGoodServiceVoucherCount;

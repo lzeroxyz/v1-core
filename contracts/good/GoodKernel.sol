@@ -2,14 +2,13 @@
 
 pragma solidity >=0.4.22 <0.9.0;
 
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+import "../utils/access/Ownable.sol";
+import "../utils/access/Routable.sol";
 
 import "../libraries/good/GoodHelper.sol";
 import "../libraries/good/GoodServiceHelper.sol";
 import "../utils/TokenFactoryUtils.sol";
-import "../utils/Routable.sol";
 
 import "../interfaces/good/IGoodKernel.sol";
 import "../interfaces/good/IGoodTokenFactory.sol";
@@ -20,7 +19,7 @@ import "../structs/Good.sol";
 import "../structs/inputs/Good.sol";
 import "../structs/outputs/Good.sol";
 
-contract GoodKernel is Context, Ownable, Pausable, Routable, IGoodKernel {
+contract GoodKernel is Ownable, Pausable, Routable, IGoodKernel {
   using TokenFactoryUtils for address;
   using GoodHelper for Good;
   using GoodServiceHelper for GoodService;

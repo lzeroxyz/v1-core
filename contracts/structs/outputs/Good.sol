@@ -40,7 +40,6 @@ struct GetGoodServiceVouchersOutput {
   uint128[] goodServiceVoucherEnds;
   uint256[] goodServiceVoucherAmounts;
   GoodServiceVoucherState[] goodServiceVoucherStates;
-  GoodServiceVoucherDestructionType[] goodServiceVoucherDestructionTypes;
 }
 
 struct GetArrayGoodServiceVouchersOutput {
@@ -51,6 +50,4 @@ struct GetArrayGoodServiceVouchersOutput {
   uint128[] goodServiceVoucherStarts;
   uint128[] goodServiceVoucherEnds;
   uint256[] goodServiceVoucherAmounts;
-  GoodServiceVoucherState[] goodServiceVoucherStates;
-  GoodServiceVoucherDestructionType[] goodServiceVoucherDestructionTypes;
 }
